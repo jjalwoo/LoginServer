@@ -5,8 +5,9 @@ namespace LoginServer.DB
 {
     public interface IDBRepository
     {
-        Task<ErrorCode> CheckLogin(string userID, string passWord);
+        Task<ErrorCode> CheckLogin(string userID, string password);
+        Task CreateAccount(string userID, string passWord);
         Task<ErrorCode> CheckDuplicationID(string userID);
-        Task CreateAccount(string username, string password);
+        string SHA256Hash(string password);
     }
 }

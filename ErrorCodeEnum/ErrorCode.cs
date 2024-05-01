@@ -2,10 +2,10 @@
 {
     public enum ErrorCode
     {
-        WhiteSpace = -1,
+        WhiteSpace = -1,    // 공백
         Suceess,
         Fail,
-        Duplication,
+        Duplication,  // 중복
         NotDuplication
     }
 }

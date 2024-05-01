@@ -4,6 +4,8 @@ using MySql.Data.MySqlClient;
 using LoginServer.Model;
 using LoginServer.ErrorCodeEnum;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LoginServer.DB
 {
@@ -11,10 +13,39 @@ namespace LoginServer.DB
     {
         private IDbConnection _dbConnection;
 
-
         public MySQLRepository()
         {
             Open();
+        }
+
+        private void Open()
+        {
+            _dbConnection = new MySqlConnection("Server=localhost;Database=account_db;UserId=root;Password=0000");
+            if (_dbConnection.State != ConnectionState.Open)
+            {
+                _dbConnection.Open();
+            }
+
+            var result = ((MySqlConnection)_dbConnection).Ping();
+
+            if (result)
+            {
+                Console.WriteLine("successful!");
+            }
+        }
+
+        public string SHA256Hash(string password)
+        {
+            SHA256 sha = new SHA256Managed();
+            byte[] hash = sha.ComputeHash(Encoding.ASCII.GetBytes(password));
+            StringBuilder stringBuilder = new StringBuilder();
+
+            foreach (byte b in hash)
+            {
+                stringBuilder.AppendFormat("{0:x2}", b);
+            }
+
+            return stringBuilder.ToString();
         }
 
         public async Task<ErrorCode> CheckLogin(string userID, string password)
@@ -38,25 +69,7 @@ namespace LoginServer.DB
                 Console.WriteLine($"{e.Message}");
                 return ErrorCode.Fail;
             }
-
         }
-
-        private void Open()
-        {
-            _dbConnection = new MySqlConnection("Server=localhost;Database=account_db;UserId=root;Password=0000");
-            if (_dbConnection.State != ConnectionState.Open)
-            {
-                _dbConnection.Open();
-            }
-
-            var result = ((MySqlConnection)_dbConnection).Ping();
-
-            if (result)
-            {
-                Console.WriteLine("successful!");
-            }
-        }
-
 
         // 에러코드 반환
         public async Task<ErrorCode> CheckDuplicationID(string userID)
@@ -74,26 +87,20 @@ namespace LoginServer.DB
                 return ErrorCode.Duplication;
             }
         }
-        /*
-         client server ->>  db  // createAccount  -> checkaccount
-            
-         */
 
         public async Task CreateAccount(string userID, string password)
         {
-
-            //?~ ! dㄴㄹ ㅇㅇㄹㅇㄹㅇㄹ password security 
-            //  sha, aes, !  nuget
-            //  password  db 
-            // 
+            password = SHA256Hash(password);
+            // password security 
+            // sha, aes, !  nuget
+            // password  db             
 
             var query2 = "INSERT INTO account (user_id, user_pw) VALUES (@user_id, @user_pw)";
 
             var rowsAffected = await _dbConnection.ExecuteAsync(query2, new { user_id = userID, user_pw = password });
-            Console.WriteLine($"{rowsAffected} row(s) inserted.");            
+            Console.WriteLine($"{rowsAffected} row(s) inserted.");
         }
     }
 }
-
 
 

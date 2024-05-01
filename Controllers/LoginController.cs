@@ -8,12 +8,12 @@ namespace LoginServer.Controllers
     [Route("[controller]")]
     public class LoginController : ControllerBase
     {
-        private IDBRepository _mySqlRepository;        
+        private IDBRepository _mySqlRepository;
 
         // DI
         public LoginController(IDBRepository mySQLRepository)
         {
-            _mySqlRepository = mySQLRepository;           
+            _mySqlRepository = mySQLRepository;
         }
 
         [HttpGet]
@@ -41,7 +41,7 @@ namespace LoginServer.Controllers
 
             var result = await _mySqlRepository.CheckLogin(loginRequest.UserID, loginRequest.Password);
 
-            if(result != ErrorCode.Suceess)
+            if (result != ErrorCode.Suceess)
             {
                 loginResponse.ErrorCode = ErrorCode.Fail;
                 return loginResponse.ErrorCode;
