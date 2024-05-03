@@ -13,14 +13,14 @@ namespace LoginServer.Redis
             _redisDb = _redisConn.GetDatabase();
         }
 
-        public void SetKeyValue(string key, string value)
-        {
-            _redisDb.StringSet(key, value);
-        }
+        //public void SetKeyValue(string key, string value)
+        //{
+        //    _redisDb.StringSet(key, value);
+        //}
 
-        public string GetValue(string key)
-        {
-            return _redisDb.StringGet(key);
-        }
+        //public string GetValue(string key)
+        //{            
+        //    return _redisDb.StringGet(key);
+        //}
     }
 }

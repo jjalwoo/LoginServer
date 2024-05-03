@@ -6,6 +6,7 @@ using LoginServer.ErrorCodeEnum;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Security.Cryptography;
 using System.Text;
+using MySqlX.XDevAPI.Common;
 
 namespace LoginServer.DB
 {
@@ -19,8 +20,9 @@ namespace LoginServer.DB
         }
 
         private void Open()
-        {
-            _dbConnection = new MySqlConnection("Server=localhost;Database=account_db;UserId=root;Password=0000");
+        { 
+            _dbConnection = new MySqlConnection("Server=localhost;Database=account_db;UserId=root;Password=wkfdnek1^^");
+            
             if (_dbConnection.State != ConnectionState.Open)
             {
                 _dbConnection.Open();
@@ -34,6 +36,11 @@ namespace LoginServer.DB
             }
         }
 
+
+        // @!!!! reepository .. -> 
+
+        // service repository .. ???? !!!
+        // 
         public string SHA256Hash(string password)
         {
             SHA256 sha = new SHA256Managed();
@@ -43,8 +50,7 @@ namespace LoginServer.DB
             foreach (byte b in hash)
             {
                 stringBuilder.AppendFormat("{0:x2}", b);
-            }
-
+            }            
             return stringBuilder.ToString();
         }
 
@@ -88,17 +94,39 @@ namespace LoginServer.DB
             }
         }
 
-        public async Task CreateAccount(string userID, string password)
+        public async Task<ErrorCode> CreateAccount(string userID, string password)
         {
-            password = SHA256Hash(password);
-            // password security 
-            // sha, aes, !  nuget
-            // password  db             
+            try
+            {
+                password = SHA256Hash(password);
+                Console.WriteLine(password);
+              
+                var query = "INSERT INTO account (user_id, user_pw) VALUES (@user_id, @user_pw)";
 
-            var query2 = "INSERT INTO account (user_id, user_pw) VALUES (@user_id, @user_pw)";
+                var result = await _dbConnection.ExecuteAsync(query, new { user_id = userID, user_pw = password });
+                //var result = await _dbConnection.ExecuteAsync(query); // w { user_id = userID, user_pw = password });
+               // 
+                if(result > 0)
+                {
+                    return ErrorCode.Suceess;
+                }                    
+                else
+                {
+                    return ErrorCode.Fail;
+                }
 
-            var rowsAffected = await _dbConnection.ExecuteAsync(query2, new { user_id = userID, user_pw = password });
-            Console.WriteLine($"{rowsAffected} row(s) inserted.");
+            }
+            catch (Exception e) 
+            {
+                //throw , try - catch ..
+
+                // try - catch..
+
+                Console.WriteLine($"{e.Message}");
+                return ErrorCode.Fail;
+            }
+
+            
         }
     }
 }

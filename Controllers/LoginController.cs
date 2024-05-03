@@ -27,13 +27,14 @@ namespace LoginServer.Controllers
         {
             LoginResponse loginResponse = new LoginResponse();
 
-            if (loginRequest.Password == "" || loginRequest.UserID == "")
+            if (loginRequest.Password == null || loginRequest.UserID == null)
             {
                 loginResponse.ErrorCode = ErrorCode.Fail;
                 return loginResponse.ErrorCode;
             }
 
-            if (loginRequest.UserID.IndexOf(" ") != (int)ErrorCode.WhiteSpace)
+            // check 
+            if (loginRequest.UserID!.IndexOf(" ") != (int)ErrorCode.WhiteSpace)
             {
                 loginResponse.ErrorCode = ErrorCode.Fail;
                 return loginResponse.ErrorCode;
