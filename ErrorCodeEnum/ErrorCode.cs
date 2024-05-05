@@ -3,9 +3,11 @@
     public enum ErrorCode
     {
         WhiteSpace = -1,    // 공백
-        Suceess,
-        Fail,
-        Duplication,  // 중복
-        NotDuplication
+        Succeess = 0,
+        Fail = 1,
+        Duplication = 2,  // 중복
+        NotDuplication = 3,
+        NotFoundUserInfo = 4,
+        NotFoundPassword = 5
     }
 }

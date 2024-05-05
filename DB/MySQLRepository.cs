@@ -43,25 +43,7 @@ namespace LoginServer.DB
             {
                 Console.WriteLine("successful!");
             }
-        }
-
-
-        // @!!!! reepository .. -> 
-
-        // service repository .. ???? !!!
-        // 
-        //public string SHA256Hash(string password)
-        //{
-        //    SHA256 sha = new SHA256Managed();
-        //    byte[] hash = sha.ComputeHash(Encoding.ASCII.GetBytes(password));
-        //    StringBuilder stringBuilder = new StringBuilder();
-
-        //    foreach (byte b in hash)
-        //    {
-        //        stringBuilder.AppendFormat("{0:x2}", b);
-        //    }            
-        //    return stringBuilder.ToString();
-        //}
+        }        
 
         public async Task<ErrorCode> CheckLogin(string userID, string password)
         {
@@ -73,11 +55,23 @@ namespace LoginServer.DB
 
                 if (result is null) // result == null과 동일
                 {
-                    Console.WriteLine("없음");
-                    return ErrorCode.Fail;
+                    Console.WriteLine("로그인 실패!: 유저 정보 없음!");
+                    return ErrorCode.NotFoundUserInfo;
                 }
 
-                return ErrorCode.Suceess;
+                var sha256Password = _security.SHA245Hash(password);
+
+                if(result.User_pw != sha256Password)
+                {
+                    Console.WriteLine("로그인 실패!: 비밀번호 불일치!");
+                    return ErrorCode.NotFoundPassword;
+                }
+
+                // 마지막 로그인 시간 업데이트
+                var updateQuery = "UPDATE account SET last_login_time = @lastLoginTime WHERE user_id = @userId";
+                await _dbConnection!.ExecuteAsync(updateQuery, new { lastLoginTime = DateTime.Now, userId = userID });
+
+                return ErrorCode.Succeess;
             }
             catch (Exception e)
             {
@@ -104,11 +98,11 @@ namespace LoginServer.DB
                     return ErrorCode.Duplication;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"{e.Message}");
                 return ErrorCode.Fail;
-            }            
+            }
         }
 
         public async Task<ErrorCode> CreateAccount(string userID, string password)
@@ -118,35 +112,28 @@ namespace LoginServer.DB
                 password = _security.SHA245Hash(password);
 
                 Console.WriteLine(password);
-              
+
                 var query = "INSERT INTO account (user_id, user_pw) VALUES (@user_id, @user_pw)";
 
                 var result = await _dbConnection!.ExecuteAsync(query, new { user_id = userID, user_pw = password });
                 //var result = await _dbConnection.ExecuteAsync(query); // w { user_id = userID, user_pw = password });
-               // 
-                if(result > 0)
+                
+                if (result > 0)
                 {
-                    return ErrorCode.Suceess;
-                }                    
+                    return ErrorCode.Succeess;
+                }
                 else
                 {
                     return ErrorCode.Fail;
                 }
 
             }
-            catch (Exception e) 
-            {
-                //throw , try - catch ..
-
-                // try - catch..
-
+            catch (Exception e)
+            {               
                 Console.WriteLine($"{e.Message}");
                 return ErrorCode.Fail;
             }
-
-            
         }
     }
 }
-
 

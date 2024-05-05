@@ -47,9 +47,9 @@ namespace LoginServer.Controllers
             if(result == ErrorCode.Fail)
             {
                 return createAccountResponse.ErrorCode;
-            }           
+            }
 
-            return result;
+            return ErrorCode.Succeess;
         }
     }
 }

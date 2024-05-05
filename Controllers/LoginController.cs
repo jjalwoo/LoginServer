@@ -42,14 +42,14 @@ namespace LoginServer.Controllers
 
             var result = await _mySqlRepository.CheckLogin(loginRequest.UserID, loginRequest.Password);
 
-            if (result != ErrorCode.Suceess)
+            if (result != ErrorCode.Succeess)
             {
                 loginResponse.ErrorCode = ErrorCode.Fail;
                 return loginResponse.ErrorCode;
             }
             else
             {
-                loginResponse.ErrorCode = ErrorCode.Suceess;
+                loginResponse.ErrorCode = ErrorCode.Succeess;
                 return loginResponse.ErrorCode;
             }
         }
