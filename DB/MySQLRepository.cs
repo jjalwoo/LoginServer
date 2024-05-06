@@ -59,7 +59,7 @@ namespace LoginServer.DB
                     return ErrorCode.NotFoundUserInfo;
                 }
 
-                var sha256Password = _security.SHA245Hash(password);
+                var sha256Password = _security.SHA256Hash(password);
 
                 if(result.User_pw != sha256Password)
                 {
@@ -109,7 +109,7 @@ namespace LoginServer.DB
         {
             try
             {
-                password = _security.SHA245Hash(password);
+                password = _security.SHA256Hash(password);
 
                 Console.WriteLine(password);
 

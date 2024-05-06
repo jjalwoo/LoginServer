@@ -13,7 +13,7 @@ namespace LoginServer.ServiceRepository
             _sha = new SHA256Managed();
         }
 
-        public string SHA245Hash(string password)
+        public string SHA256Hash(string password)
         {
             byte[] hash = _sha.ComputeHash(Encoding.ASCII.GetBytes(password));
 
