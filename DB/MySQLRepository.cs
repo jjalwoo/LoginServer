@@ -43,7 +43,52 @@ namespace LoginServer.DB
             {
                 Console.WriteLine("successful!");
             }
-        }        
+        } 
+        
+        public async Task SaveToken(string userID, string tokenStr)
+        {
+            try 
+            {
+                var updateQuery = "UPDATE account SET token = @token WHERE user_id = @userId";
+                await _dbConnection!.ExecuteAsync(updateQuery, new { token = tokenStr, userId = userID });
+            }
+            catch ( Exception e)
+            {
+                Console.WriteLine($"{e.Message}");
+            }            
+        }
+
+        public async Task DeleteToken(string userID)
+        {
+            try
+            {
+                var updateQuery = "UPDATE account SET token = null WHERE user_id = @userId";
+                await _dbConnection!.ExecuteAsync(updateQuery, new { userId = userID });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}");
+            }
+        }
+
+        public async Task<ErrorCode> CheckLoging(string userID)
+        {
+            try
+            {
+                var query = "SELECT * FROM account WHERE user_id = @userID";
+                var result = await _dbConnection!.QueryFirstOrDefaultAsync<Account>(query, new { userId = userID });
+
+                if (result!.Token == null)
+                    return ErrorCode.Loging;
+
+                return ErrorCode.NotLoging;
+            }
+            catch ( Exception e )
+            {
+                Console.WriteLine($"{e.Message}");
+                return ErrorCode.Fail;
+            }
+        }
 
         public async Task<ErrorCode> CheckLogin(string userID, string password)
         {

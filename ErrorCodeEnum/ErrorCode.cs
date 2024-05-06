@@ -8,6 +8,9 @@
         Duplication = 2,  // 중복
         NotDuplication = 3,
         NotFoundUserInfo = 4,
-        NotFoundPassword = 5
+        NotFoundPassword = 5,
+        Loging = 6,
+        NotLoging = 7,
+        LogoutSuccess = 8
     }
 }

@@ -88,6 +88,8 @@ namespace LoginServer.Controllers
                     var token = tokenHandler.CreateToken(tokenDescriptor);
                     var tokenString = tokenHandler.WriteToken(token) ?? string.Empty;
 
+                    await _mySqlRepository.SaveToken(loginRequest.UserID, tokenString);
+
                     return Ok(new { Token = tokenString });
                 }
                 catch (Exception ex)
