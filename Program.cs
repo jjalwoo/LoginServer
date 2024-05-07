@@ -19,12 +19,12 @@ namespace LoginServer
 
             builder.Services.AddHttpContextAccessor();
 
-            // 차이점 알아보기
+        
             builder.Services.AddSingleton<IDBRepository, MySQLRepository>();
             // builder.Services.AddTransient<MySQLRepository>();
 
             var app = builder.Build()!;
-           
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

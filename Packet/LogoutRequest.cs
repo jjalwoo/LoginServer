@@ -1,4 +1,5 @@
-﻿namespace LoginServer.Packet
+﻿
+namespace LoginServer.Packet
 {
     public class LogoutRequest
     {

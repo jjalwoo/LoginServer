@@ -11,7 +11,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using LoginServer.Token;
+using LoginServer.jwtToken;
 
 namespace LoginServer.Controllers
 {
@@ -19,13 +19,15 @@ namespace LoginServer.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IDBRepository _mySqlRepository;
-        private readonly IConfiguration _config;       
+        private readonly IConfiguration _config;
+        private readonly Token _tokenGenerator;
 
         // DI
         public LoginController(IDBRepository mySQLRepository, IConfiguration config)
         {
             _mySqlRepository = mySQLRepository;
             _config = config;
+            _tokenGenerator = new Token(config);
         }
 
         public string GetClientIP()
@@ -72,33 +74,21 @@ namespace LoginServer.Controllers
                 loginResponse.ErrorCode = ErrorCode.Fail;
                 return BadRequest(loginResponse);
             }
-           
+
             try
-            {
-                //var tokenHandler = new JwtSecurityTokenHandler();
-                //var key = Encoding.ASCII.GetBytes(_config.GetValue<string>("Jwt:SecretKey"));
-
-                //var tokenDescriptor = new SecurityTokenDescriptor
-                //{
-                //    Subject = new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Name, loginRequest.UserID) }),
-                //    Expires = DateTime.UtcNow.AddDays(7),
-                //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                //};
-
-                //var token = tokenHandler.CreateToken(tokenDescriptor);
-                //var tokenString = tokenHandler.WriteToken(token) ?? string.Empty;
-
-                string tokenString = Token.Token.MakeToken(loginRequest);
+            {              
+                string tokenString = _tokenGenerator.MakeToken(loginRequest);
                 await _mySqlRepository.SaveToken(loginRequest.UserID, tokenString);
 
+                string refreshToken = _tokenGenerator.MakeRefreshToken();
                 return Ok(new { Token = tokenString });
             }
             catch (Exception ex)
             {
-               Console.WriteLine($"Error generating token: {ex.Message}");
-               loginResponse.ErrorCode = ErrorCode.Fail;
-               return BadRequest(loginResponse);
-            }            
+                Console.WriteLine($"Error generating token: {ex.Message}");
+                loginResponse.ErrorCode = ErrorCode.Fail;
+                return BadRequest(loginResponse);
+            }
         }
     }
 }
