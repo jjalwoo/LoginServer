@@ -28,7 +28,7 @@ namespace LoginServer.DB
 
         private void Open()
         {
-            string? dbInfo = _config.GetSection("ConnectionStrings").GetSection("myDb2").Value;
+            string? dbInfo = _config.GetSection("ConnectionStrings").GetSection("myDb1").Value;
             // _dbConnection = new MySqlConnection("Server=localhost;Database=account_db;UserId=root;Password=0000");
             _dbConnection = new MySqlConnection(dbInfo);
 
@@ -43,19 +43,19 @@ namespace LoginServer.DB
             {
                 Console.WriteLine("successful!");
             }
-        } 
-        
+        }
+
         public async Task SaveToken(string userID, string tokenStr)
         {
-            try 
+            try
             {
                 var updateQuery = "UPDATE account SET token = @token WHERE user_id = @userId";
                 await _dbConnection!.ExecuteAsync(updateQuery, new { token = tokenStr, userId = userID });
             }
-            catch ( Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine($"{e.Message}");
-            }            
+            }
         }
 
         public async Task DeleteToken(string userID)
@@ -83,7 +83,7 @@ namespace LoginServer.DB
 
                 return ErrorCode.NotLoging;
             }
-            catch ( Exception e )
+            catch (Exception e)
             {
                 Console.WriteLine($"{e.Message}");
                 return ErrorCode.Fail;
@@ -106,7 +106,7 @@ namespace LoginServer.DB
 
                 var sha256Password = _security.SHA256Hash(password);
 
-                if(result.User_pw != sha256Password)
+                if (result.User_pw != sha256Password)
                 {
                     Console.WriteLine("로그인 실패!: 비밀번호 불일치!");
                     return ErrorCode.NotFoundPassword;
@@ -162,7 +162,7 @@ namespace LoginServer.DB
 
                 var result = await _dbConnection!.ExecuteAsync(query, new { user_id = userID, user_pw = password });
                 //var result = await _dbConnection.ExecuteAsync(query); // w { user_id = userID, user_pw = password });
-                
+
                 if (result > 0)
                 {
                     return ErrorCode.Succeess;
@@ -174,11 +174,10 @@ namespace LoginServer.DB
 
             }
             catch (Exception e)
-            {               
+            {
                 Console.WriteLine($"{e.Message}");
                 return ErrorCode.Fail;
             }
         }
     }
 }
-

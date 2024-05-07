@@ -10,9 +10,9 @@ namespace LoginServer.Controllers
     {
         IDBRepository _mySqlRepository;
 
-        public LogoutController(IDBRepository mySqlRepository )
+        public LogoutController(IDBRepository mySqlRepository)
         {
-            _mySqlRepository = mySqlRepository; 
+            _mySqlRepository = mySqlRepository;
         }
 
         [HttpPost]
@@ -20,7 +20,7 @@ namespace LoginServer.Controllers
         {
             LogoutResponse logoutResponse = new();
 
-            var result = await  _mySqlRepository.CheckLoging(logoutRequest.UserID!);
+            var result = await _mySqlRepository.CheckLoging(logoutRequest.UserID!);
 
             if (result == ErrorCode.Loging)
             {
@@ -28,7 +28,7 @@ namespace LoginServer.Controllers
                 return logoutResponse.ErrorCode;
             }
 
-            if(result == ErrorCode.NotLoging)
+            if (result == ErrorCode.NotLoging)
             {
                 await _mySqlRepository.DeleteToken(logoutRequest.UserID!);
                 logoutResponse = new LogoutResponse() { ErrorCode = ErrorCode.LogoutSuccess };

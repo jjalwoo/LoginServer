@@ -12,24 +12,24 @@ namespace LoginServer.Controllers
         IDBRepository _mySqlRepository;
 
         public CreateAccountController(IDBRepository mySqlRepository)
-        {          
-            _mySqlRepository = mySqlRepository;          
+        {
+            _mySqlRepository = mySqlRepository;
         }
 
         [HttpPost]
-        public async Task<ErrorCode> PostCreateAccount([FromBody]CreateAccountRequest createAccountPacket)
+        public async Task<ErrorCode> PostCreateAccount([FromBody] CreateAccountRequest createAccountPacket)
         {
 
             // var createAccountResponse = new CreateAccountResponse();
             CreateAccountResponse createAccountResponse = new() { ErrorCode = ErrorCode.Fail };  // new         
             //createAccountResponse.ErrorCode = ErrorCode.Fail;
 
-            if (createAccountPacket.Password == "" ||  createAccountPacket.UserID == "")
+            if (createAccountPacket.Password == "" || createAccountPacket.UserID == "")
             {
                 return createAccountResponse.ErrorCode;
             }
 
-            if(createAccountPacket.UserID!.IndexOf(" ") != (int)ErrorCode.WhiteSpace)
+            if (createAccountPacket.UserID!.IndexOf(" ") != (int)ErrorCode.WhiteSpace)
             {
                 return createAccountResponse.ErrorCode;
             }
@@ -40,11 +40,11 @@ namespace LoginServer.Controllers
             {
                 return createAccountResponse.ErrorCode;
             }
-            
-          
-           var result = await _mySqlRepository.CreateAccount(createAccountPacket.UserID, createAccountPacket.Password!);
 
-            if(result == ErrorCode.Fail)
+
+            var result = await _mySqlRepository.CreateAccount(createAccountPacket.UserID, createAccountPacket.Password!);
+
+            if (result == ErrorCode.Fail)
             {
                 return createAccountResponse.ErrorCode;
             }

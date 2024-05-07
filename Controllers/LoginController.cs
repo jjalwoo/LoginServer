@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using LoginServer.Token;
 
 namespace LoginServer.Controllers
 {
@@ -18,7 +19,7 @@ namespace LoginServer.Controllers
     public class LoginController : ControllerBase
     {
         private readonly IDBRepository _mySqlRepository;
-        private readonly IConfiguration _config;
+        private readonly IConfiguration _config;       
 
         // DI
         public LoginController(IDBRepository mySQLRepository, IConfiguration config)
@@ -71,33 +72,33 @@ namespace LoginServer.Controllers
                 loginResponse.ErrorCode = ErrorCode.Fail;
                 return BadRequest(loginResponse);
             }
-            else
+           
+            try
             {
-                try
-                {
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.ASCII.GetBytes(_config.GetValue<string>("Jwt:SecretKey"));
+                //var tokenHandler = new JwtSecurityTokenHandler();
+                //var key = Encoding.ASCII.GetBytes(_config.GetValue<string>("Jwt:SecretKey"));
 
-                    var tokenDescriptor = new SecurityTokenDescriptor
-                    {
-                        Subject = new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Name, loginRequest.UserID) }),
-                        Expires = DateTime.UtcNow.AddDays(7),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                    };
+                //var tokenDescriptor = new SecurityTokenDescriptor
+                //{
+                //    Subject = new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Name, loginRequest.UserID) }),
+                //    Expires = DateTime.UtcNow.AddDays(7),
+                //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                //};
 
-                    var token = tokenHandler.CreateToken(tokenDescriptor);
-                    var tokenString = tokenHandler.WriteToken(token) ?? string.Empty;
+                //var token = tokenHandler.CreateToken(tokenDescriptor);
+                //var tokenString = tokenHandler.WriteToken(token) ?? string.Empty;
 
-                    await _mySqlRepository.SaveToken(loginRequest.UserID, tokenString);
+                string tokenString = Token.Token.MakeToken(loginRequest);
+                await _mySqlRepository.SaveToken(loginRequest.UserID, tokenString);
 
-                    return Ok(new { Token = tokenString });
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error generating token: {ex.Message}");
-                    throw;
-                }
+                return Ok(new { Token = tokenString });
             }
+            catch (Exception ex)
+            {
+               Console.WriteLine($"Error generating token: {ex.Message}");
+               loginResponse.ErrorCode = ErrorCode.Fail;
+               return BadRequest(loginResponse);
+            }            
         }
     }
 }
