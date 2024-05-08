@@ -11,7 +11,9 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using LoginServer.jwtToken;
+using LoginServer.JWTToken;
+using LoginServer.Redis;
+
 
 namespace LoginServer.Controllers
 {
@@ -21,13 +23,16 @@ namespace LoginServer.Controllers
         private readonly IDBRepository _mySqlRepository;
         private readonly IConfiguration _config;
         private readonly Token _tokenGenerator;
+        private readonly Redis.Redis _redis;
+
 
         // DI
-        public LoginController(IDBRepository mySQLRepository, IConfiguration config)
+        public LoginController(IDBRepository mySQLRepository, IConfiguration config, Redis.Redis redis)
         {
             _mySqlRepository = mySQLRepository;
             _config = config;
             _tokenGenerator = new Token(config);
+            _redis = redis;
         }
 
         public string GetClientIP()
@@ -76,12 +81,13 @@ namespace LoginServer.Controllers
             }
 
             try
-            {              
+            {
                 string tokenString = _tokenGenerator.MakeToken(loginRequest);
                 await _mySqlRepository.SaveToken(loginRequest.UserID, tokenString);
 
                 string refreshToken = _tokenGenerator.MakeRefreshToken();
-                return Ok(new { Token = tokenString });
+                _redis.SetKeyValue(loginRequest.UserID, refreshToken);
+                return Ok(new { Token = tokenString, RefreshToken = refreshToken });
             }
             catch (Exception ex)
             {

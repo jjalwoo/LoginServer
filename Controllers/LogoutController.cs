@@ -2,6 +2,7 @@
 using LoginServer.ErrorCodeEnum;
 using LoginServer.Packet;
 using Microsoft.AspNetCore.Mvc;
+using LoginServer.Redis;
 
 namespace LoginServer.Controllers
 {
@@ -9,10 +10,12 @@ namespace LoginServer.Controllers
     public class LogoutController : ControllerBase
     {
         IDBRepository _mySqlRepository;
+        private readonly Redis.Redis _redis;
 
-        public LogoutController(IDBRepository mySqlRepository)
+        public LogoutController(IDBRepository mySqlRepository, Redis.Redis redis)
         {
             _mySqlRepository = mySqlRepository;
+            _redis = redis;
         }
 
         [HttpPost]
@@ -20,23 +23,19 @@ namespace LoginServer.Controllers
         {
             LogoutResponse logoutResponse = new();
 
-            var result = await _mySqlRepository.CheckLoging(logoutRequest.UserID!);
+            // var result = await _mySqlRepository.CheckLoging(logoutRequest.UserID!);
+            var result = _redis.GetValue(logoutRequest.UserID!);
 
-            if (result == ErrorCode.Loging)
+            if (result == null)
             {
-                logoutResponse = new LogoutResponse() { ErrorCode = result };
+                logoutResponse.ErrorCode = ErrorCode.Loging;
                 return logoutResponse.ErrorCode;
             }
 
-            if (result == ErrorCode.NotLoging)
-            {
-                await _mySqlRepository.DeleteToken(logoutRequest.UserID!);
-                logoutResponse = new LogoutResponse() { ErrorCode = ErrorCode.LogoutSuccess };
-                return logoutResponse.ErrorCode;
-            }
-
-            return ErrorCode.Fail;
+            logoutResponse.ErrorCode = ErrorCode.LogoutSuccess;
+            await _mySqlRepository.DeleteToken(logoutRequest.UserID!);
+            _redis.RemoveKey(logoutRequest.UserID!);
+            return logoutResponse.ErrorCode;           
         }
-
     }
 }

@@ -1,4 +1,5 @@
 using LoginServer.DB;
+using LoginServer.Redis;
 
 namespace LoginServer
 {
@@ -19,12 +20,13 @@ namespace LoginServer
 
             builder.Services.AddHttpContextAccessor();
 
-        
+            // 차이점 알아보기
             builder.Services.AddSingleton<IDBRepository, MySQLRepository>();
             // builder.Services.AddTransient<MySQLRepository>();
+            builder.Services.AddTransient<Redis.Redis>();
 
             var app = builder.Build()!;
-
+           
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

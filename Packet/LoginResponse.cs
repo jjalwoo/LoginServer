@@ -1,5 +1,4 @@
-﻿
-using LoginServer.ErrorCodeEnum;
+﻿using LoginServer.ErrorCodeEnum;
 
 namespace LoginServer.Packet
 {

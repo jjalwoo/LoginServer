@@ -28,7 +28,7 @@ namespace LoginServer.DB
 
         private void Open()
         {
-            string? dbInfo = _config.GetSection("ConnectionStrings").GetSection("myDb1").Value;
+            string? dbInfo = _config.GetSection("ConnectionStrings").GetSection("myDb2").Value;
             // _dbConnection = new MySqlConnection("Server=localhost;Database=account_db;UserId=root;Password=0000");
             _dbConnection = new MySqlConnection(dbInfo);
 
